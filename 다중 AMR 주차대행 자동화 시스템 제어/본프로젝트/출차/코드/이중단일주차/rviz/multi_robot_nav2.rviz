@@ -1,0 +1,155 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Name: Tool Properties
+  - Class: rviz_common/Views
+    Name: Views
+  - Class: rviz_common/Time
+    Name: Time
+
+Visualization Manager:
+  Class: ""
+  Enabled: true
+  Global Options:
+    Background Color: [48, 48, 48]
+    Fixed Frame: robot1/map
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Name: Interact
+    - Class: rviz_default_plugins/MoveCamera
+      Name: Move Camera
+    - Class: rviz_default_plugins/Select
+      Name: Select
+    - Class: rviz_default_plugins/Measure
+      Name: Measure
+    - Class: rviz_default_plugins/SetInitialPose
+      Name: 2D Pose Estimate (robot1)
+      Topic: /robot1/initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Name: 2D Nav Goal (robot1)
+      Topic: /robot1/navigate_to_pose/_action/goal
+    - Class: rviz_default_plugins/SetInitialPose
+      Name: 2D Pose Estimate (robot5)
+      Topic: /robot5/initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Name: 2D Nav Goal (robot5)
+      Topic: /robot5/navigate_to_pose/_action/goal
+
+  Displays:
+    # 1) TF 전체 트리
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+
+    # 2) 로봇1 Laser
+    - Class: rviz_default_plugins/LaserScan
+      Name: Robot1 Laser
+      Enabled: true
+      Topic:
+        Value: /robot1/scan
+      Queue Size: 10
+      Style: Flat Squares
+      Size (Pixels): 3
+      Color: [0, 255, 0]
+
+    # 3) 로봇5 Laser
+    - Class: rviz_default_plugins/LaserScan
+      Name: Robot5 Laser
+      Enabled: true
+      Topic:
+        Value: /robot5/scan
+      Queue Size: 10
+      Style: Flat Squares
+      Size (Pixels): 3
+      Color: [255, 0, 0]
+
+    # 4) 로봇1 모델
+    - Class: rviz_default_plugins/RobotModel
+      Name: Robot1 Model
+      Enabled: true
+      Description Source: Topic
+      Robot Description: robot_description
+      TF Prefix: robot1
+
+    # 5) 로봇5 모델
+    - Class: rviz_default_plugins/RobotModel
+      Name: Robot5 Model
+      Enabled: true
+      Description Source: Topic
+      Robot Description: robot_description
+      TF Prefix: robot5
+
+    # 6) 로봇1 Global Costmap
+    - Class: rviz_default_plugins/Map
+      Name: Robot1 Global Costmap
+      Enabled: true
+      Topic:
+        Value: /robot1/global_costmap/costmap
+      Alpha: 0.7
+      Color Scheme: costmap
+
+    # 7) 로봇5 Global Costmap
+    - Class: rviz_default_plugins/Map
+      Name: Robot5 Global Costmap
+      Enabled: true
+      Topic:
+        Value: /robot5/global_costmap/costmap
+      Alpha: 0.7
+      Color Scheme: costmap
+
+    # 8) 로봇1 Local Costmap
+    - Class: rviz_default_plugins/Map
+      Name: Robot1 Local Costmap
+      Enabled: false
+      Topic:
+        Value: /robot1/local_costmap/costmap
+      Alpha: 0.7
+      Color Scheme: costmap
+
+    # 9) 로봇5 Local Costmap
+    - Class: rviz_default_plugins/Map
+      Name: Robot5 Local Costmap
+      Enabled: false
+      Topic:
+        Value: /robot5/local_costmap/costmap
+      Alpha: 0.7
+      Color Scheme: costmap
+
+    # 10) 로봇1 Path
+    - Class: rviz_default_plugins/Path
+      Name: Robot1 Path
+      Enabled: true
+      Topic:
+        Value: /robot1/plan
+      Line Style: Lines
+      Line Width: 0.05
+      Color: [0, 255, 255]
+
+    # 11) 로봇5 Path
+    - Class: rviz_default_plugins/Path
+      Name: Robot5 Path
+      Enabled: true
+      Topic:
+        Value: /robot5/plan
+      Line Style: Lines
+      Line Width: 0.05
+      Color: [255, 255, 0]
+
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Orbit
+      Distance: 10
+      Pitch: 0.5
+      Yaw: 0.0
+
+Window Geometry:
+  Width: 1600
+  Height: 900
+  X: 100
+  Y: 50
+

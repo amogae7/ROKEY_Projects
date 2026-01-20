@@ -1,0 +1,300 @@
+/* ------------------- 1. 배경 및 기본 스타일 ------------------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    
+    /* [수정됨] 리니어 그라디언트를 사용해 이미지를 어둡게 처리 */
+    /* rgba(0, 0, 0, 0.5) 의 마지막 숫자 0.5가 투명도입니다 (0.0 ~ 1.0) */
+    /* 0.3은 옅게 어두움, 0.7은 아주 어두움입니다. 취향껏 조절하세요. */
+    /* 🚨 이미지 파일 이름을 로컬에 저장한 파일 이름으로 변경하세요. */
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        #2c2c2c url('robot_and_coffee.png') no-repeat center center fixed; 
+    
+    background-size: contain;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ------------------- 2. 헤더 및 컨테이너 ------------------- */
+#header-bar {
+    width: 90%;
+    max-width: 1200px;
+    background-color: rgba(40, 40, 40, 0.9);
+    color: #ddd;
+    padding: 15px 25px;
+    margin-top: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    font-size: 1.2em;
+    text-align: center;
+    font-weight: 600;
+}
+
+#main-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px 20px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* ------------------- 3. 선택 박스 스타일 ------------------- */
+.selection-box {
+    /* 👇 [수정 전] */
+    /* background-color: rgba(50, 50, 50, 0.85); */
+
+    /* 👇 [수정 후] 0.95로 올려서 거의 불투명하게 변경 (취향에 따라 1.0도 가능) */
+    background-color: rgba(40, 40, 40, 0.95);
+    
+    border-radius: 15px;
+    padding: 25px;
+    width: 300px;
+
+    /* 그림자도 조금 더 진하게 해서 입체감을 살립니다 */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.8);
+    border: 1px solid #777;
+    text-align: center;
+}
+
+.selection-box h3 {
+    color: #f0c476; /* 골드 톤 */
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    border-bottom: 2px solid #555;
+    padding-bottom: 10px;
+}
+
+/* ------------------- 4. 버튼 공통 스타일 ------------------- */
+.order-button {
+    width: 90%;
+    padding: 15px 10px;
+    margin: 10px auto;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    font-weight: bold;
+    color: white;
+    opacity: 0.7; /* 기본적으로 비활성 느낌 */
+}
+.order-button:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+}
+
+/* 선택된 버튼 스타일 */
+.order-button.selected {
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    border: 3px solid white;
+}
+
+/* 버튼 그룹별 색상 */
+#beverage-selection .order-button { background-color: #556b82; } /* 커피/코코아 */
+#temp-selection .order-button { background-color: #8b4513; } /* 온도 */
+.order-button.selected { background-color: #a87932 !important; } /* 선택 시 골드브라운 */
+
+/* ------------------- 5. 메인 제어 버튼 스타일 ------------------- */
+#control-section {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto 50px auto;
+    text-align: center;
+}
+
+/* style.css 에서 #brew-button 을 찾아주세요 */
+
+#brew-button {
+    padding: 20px 40px;
+    
+    /* 👇 [수정 전] */
+    /* background-color: #8b4513; */
+    /* opacity: 0.7; */
+
+    /* 👇 [수정 후] opacity를 0.9 ~ 1.0 으로 올립니다 */
+    background-color: #8b4513; 
+    opacity: 0.95;  /* 평소에도 잘 보이게 설정 */
+    
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s;
+    font-weight: 700;
+    
+    /* 그림자 추가 */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.6); 
+    
+    width: 100%;
+}
+
+/* 마우스를 올렸을 때(hover)는 완전히 불투명하게 */
+#brew-button:hover:not(:disabled) {
+    background-color: #a0522d;
+    opacity: 1.0; 
+}
+#brew-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ------------------- 6. 상태 표시 스타일 (가장 중요) ------------------- */
+/* 제작 중 (빨간색) */
+#brew-button.in-progress {
+    background-color: #c0392b; /* 진한 빨강 */
+    animation: pulse 1.5s infinite;
+    opacity: 1;
+}
+/* 제작 완료 (녹색) */
+#brew-button.complete {
+    background-color: #27ae60; /* 진한 녹색 */
+    cursor: default;
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(192, 57, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0); }
+}
+
+/* ------------------- 7. 상태 메시지 ------------------- */
+#status-message {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #f0c476;
+}
+
+/* style.css 맨 아래에 추가해보세요 */
+
+.status-badge {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    border-radius: 12px;
+    margin-left: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+/* 로봇이 대기 중일 때 (IDLE) */
+.status-badge.ready {
+    background-color: #2ecc71; /* 녹색 */
+}
+
+/* 로봇이 작업 중일 때 (MAKING) */
+.status-badge.busy {
+    background-color: #e74c3c; /* 빨간색 */
+}
+
+/* ==================================================== */
+/* [추가] 안전 관리 섹션 스타일 (Emergency Controls)     */
+/* ==================================================== */
+
+#emergency-section {
+    width: 90%;
+    max-width: 600px;
+
+    /* 👇 [수정 전] 원래 코드 */
+    /* margin: 30px auto; */
+
+    /* 👇 [수정 후] 위쪽 여백을 30px -> 80px로 늘림 */
+    /* 숫자가 커질수록 더 아래로 내려갑니다. (예: 100px, 150px 등) */
+    margin: 80px auto 30px auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.6); /* 어두운 배경으로 구역 분리 */
+    border-radius: 15px;
+    border: 1px solid #444;
+    text-align: center;
+}
+
+.section-title {
+    margin: 0 0 15px 0;
+    color: #bbb;
+    font-size: 0.9em;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.emergency-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* 1. 정지 버튼 (가장 눈에 띄어야 함 - 빨강) */
+#btn-stop {
+    flex: 1; /* 너비 균등 분할 */
+    padding: 15px;
+    background-color: #e74c3c; /* 밝은 빨강 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+#btn-stop:hover {
+    background-color: #c0392b; /* 진한 빨강 */
+    transform: scale(1.02);
+}
+
+#btn-stop:active {
+    transform: scale(0.95);
+}
+
+/* 2. 복구 버튼 (기능성 버튼 - 파랑 또는 노랑) */
+#btn-reset {
+    flex: 1;
+    padding: 15px;
+    background-color: #3498db; /* 파랑 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.2s;
+}
+
+#btn-reset:hover {
+    background-color: #2980b9;
+}
+
+.status-badge.error {
+    background-color: #ff0000; /* 아주 쨍한 빨강 */
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8); /* 붉은 광채 */
+    animation: blink-animation 1s infinite; /* 깜빡임 효과 */
+}
+
+@keyframes blink-animation {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* 복구 중 (주황/노랑) - 깜빡이는 효과 추가 */
+.status-badge.recovering {
+    background-color: #f39c12; /* 오렌지색 */
+    box-shadow: 0 0 10px rgba(243, 156, 18, 0.6);
+    animation: blink-soft 1.5s infinite; /* 부드럽게 깜빡임 */
+}
+
+@keyframes blink-soft {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
