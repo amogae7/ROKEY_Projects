@@ -1,0 +1,19 @@
+# [중요] 데이터셋의 루트 경로를 절대 경로로 적어줍니다.
+path: /home/rokey/ros2_ws/src/Tutorial/Calibration_Tutorial/data/please
+
+# 루트 경로 기준 상대 경로
+train: train/images
+val: valid/images
+test: test/images
+
+# 클래스 개수 (0~5번이므로 총 6개)
+nc: 6
+
+# 클래스 이름
+names: 
+  0: part_1_bad
+  1: part_1_good
+  2: part_2_bad
+  3: part_2_good
+  4: part_3_bad
+  5: part_3_good

@@ -1,0 +1,261 @@
+# 두산 로봇 bringup
+ros2 launch dsr_bringup2 dsr_bringup2_rviz.launch.py mode:=real host:=192.168.1.100 port:=12345 model:=m0609
+
+# 로봇 직접 교시 전환
+cd ros2_ws
+source install/setup.bash
+ros2 service call /dsr01/system/set_robot_mode dsr_msgs2/srv/SetRobotMode "robot_mode: 0"
+
+# realsense 런치파일
+ros2 launch realsense2_camera rs_align_depth_launch.py depth_module.depth_profile:=640*480*30 rgb_camera.color_profile:=640*480*30 initial_reset:=true align_depth.enable:=true enable_rgbd:=true pointcloud.enable:=true
+
+## pick and place voice
+#터미널3
+source install/setup.bash
+export PYTHONPATH=$PYTHONPATH:~/ros2_ws/install/dsr_common2/lib/dsr_common2/imp
+ros2 run pick_and_place_voice robot_control
+
+#터미널4
+source install/setup.bash
+ros2 run pick_and_place_voice get_keyword
+
+#터미널5
+source install/setup.bash
+ros2 run pick_and_place_voice object_detection
+
+-------------------------------------------------------------------
+#### 사진 찍기
+
+# 두산 로봇 bringup
+ros2 launch dsr_bringup2 dsr_bringup2_rviz.launch.py mode:=real host:=192.168.1.100 port:=12345 model:=m0609
+
+# 로봇 직접 교시 전환
+cd ros2_ws
+source install/setup.bash
+ros2 service call /dsr01/system/set_robot_mode dsr_msgs2/srv/SetRobotMode "robot_mode: 0"
+
+# realsense 런치파일
+ros2 launch realsense2_camera rs_align_depth_launch.py depth_module.depth_profile:=640*480*30 rgb_camera.color_profile:=640*480*30 initial_reset:=true align_depth.enable:=true enable_rgbd:=true pointcloud.enable:=true
+
+# 사진 찍기(q를 눌러라)
+source ~/ros2_ws/install/setup.bash
+export PYTHONPATH=$PYTHONPATH:~/ros2_ws/install/dsr_common2/lib/dsr_common2/imp
+python3 data_recording.py
+
+
+----------------------------------------------------
+
+# labelme 설치
+pip install labelme
+
+# gedit ~/.bashrc로 
+# .bashrc 들어간 뒤에
+# 마지막줄이 아래 추가
+export QT_QPA_PLATFORM=xcb
+
+# 이렇게 하고 터미널 창에 labelme를 입력해보세요 근데 아마 안될겁니다
+
+
+
+# 그러면 이걸 해보세요
+sudo apt update
+sudo apt install libxcb-cursor0
+
+# 1. 기존의 충돌 유발 OpenCV 제거
+pip uninstall opencv-python -y
+
+# 2. 충돌 없는 버전(Headless) 설치
+pip install opencv-python-headless
+
+# 다시 터미널에 labelme를 입력해 보시고 그래도 안되면 저 한테 알려주세용
+
+
+---------------------------------------------
+
+ros2 run rokey jog
+
+ros2 run rokey get_current_pos
+
+---------------------------------------------
+
+## 라벨링한 JSON 파일들이 있는 폴더에 이 파이썬 파일을 넣고 터미널에서 실행시키면 돼요
+##json2yolo.py
+
+-------------------------------------------
+
+labelme를 사용하고 나서 
+다시 학습데이터 성능 검증을 하려면 
+
+이 명령어를 다시 입력해야 한다
+
+# 1. 꼬여있는 OpenCV 관련 패키지를 전부 삭제
+pip uninstall opencv-python opencv-python-headless opencv-contrib-python -y
+
+# 2. 화면 기능이 포함된 '일반 버전' 다시 설치
+pip install opencv-python
+
+
+-------------------------------------------------------------
+데이터셋 다운로드
+curl -L "https://app.roboflow.com/ds/bjLpw8Abp9?key=QqOnD06h5s" > roboflow.zip; unzip roboflow.zip; rm roboflow.zip
+
+------------------------------------------------
+
+홈 위치
+posj([0.094, -13.665, 59.737, -0.854, 116.752, 90.0)
+
+A 위치
+posj([-88.692, 17.798, 86.462, 0.326, 72.262, -358.097])
+
+
+
+# 1. 파이썬 gTTS 설치
+pip install gTTS
+
+# 2. 리눅스용 mp3 플레이어 설치 (가벼워서 로봇에 쓰기 좋음)
+
+pip install SpeechRecognition gTTS
+
+sudo apt update
+sudo apt install portaudio19-dev
+
+pip install pyaudio
+
+sudo apt install mpg321
+
+---------------------------------------
+
+협동1 노션 링크
+
+https://bit.ly/rokey_cobot
+
+--------------------------------------
+
+실행 순서?
+
+ #터미널1에는
+ros2 launch dsr_bringup2 dsr_bringup2_rviz.launch.py mode:=real host:=192.168.1.100 port:=12345 model:=m0609
+
+#터미널2에는
+ros2 launch realsense2_camera rs_align_depth_launch.py depth_module.depth_profile:=640*480*30 rgb_camera.color_profile:=640*480*30 initial_reset:=true align_depth.enable:=true enable_rgbd:=true pointcloud.enable:=true 
+
+#터미널3
+ros2 run dsr_rokey2 detection
+
+#터미널4
+ros2 run dsr_rokey2 yolo_node
+
+#터미널5
+ros2 run dsr_rokey2 robot_control
+
+#터미널6
+ros2 run dsr_rokey2 smart_manager
+
+----------------------------------------------
+
+sudo apt-get install sox libsox-fmt-mp3
+
+-----------------------------------------------
+
+# 1. 오디오 드라이버 및 개발 도구 설치
+sudo apt-get install portaudio19-dev python3-pyaudio
+
+# 2. 파이썬 라이브러리 설치
+pip install SpeechRecognition pyaudio
+
+-----------------------------------------------
+
+sudo apt-get install mpg123
+
+-----------------------------------
+
+# aruco_detection_node.py 수정
+self.MARKER_SIZE = 0.1  # 100mm = 0.1m
+self.aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+
+----------------------------------------------------------------
+
+12월 30일 할 일
+
+현재의 문제점
+
+	1. 소리가 제대로 인식 안되는것(터미널 자체에서 소리를 인식한것처럼 보였는데 씹힌것 처럼 처리되는 현상)
+
+	2. 음성의 병렬적 구조
+
+	3. 소리 인식 후 로봇 제어(근데 좌표변환은 잘 구현되고 있는것 같고, 제어도 되는것을 확인했다)
+
+smart_manager 노드 실행 터미널에서 자꾸 뜨는 난잡한 로그들을 해결할 수 있을지
+
+우리는 tts 구조를 살려서 활용하는것이 시나리오
+
+교안의 api는 stt만 가능한 구조
+
+------------------------------------------------------
+
+pip install gTTS playsound==1.2.2 SpeechRecognition pyaudio
+
+pip install langchain-openai python-dotenv
+
+pip install pygame
+
+
+----------------------------------
+
+
+
+
+yaw값 보정 100% 완료하기(이건 근데 '찾아줘'기능을 없애야할 것 같은데?)
+
+홈 위치에서 인식한 pose 리스트로 저장
+
+음성인식 tts 안내 기능 넣기
+
+모든 좌표를 교시로 다 따기(환경 완성 시키기)
+
+(안전영역 지정, 초록불 들어오는거)
+
+(확장 시나리오)
+
+----------------------------------------------------
+
+1. yolo_node_7.py (전체 감지 모드)
+
+[변경된 점]
+
+    기능: 타겟 여부와 상관없이 화면에 보이는 모든 물체의 좌표를 계산합니다.
+
+    토픽 추가: /yolo_all_detect 토픽으로 모든 물체의 정보(이름+좌표)를 JSON 형식으로 묶어서 쏩니다.
+
+    호환성: 기존 /yolo_object_pos (타겟 전용)도 그대로 유지합니다.
+    
+
+2. robot_control_9.py (전체 메모리 저장 모드)
+
+[변경된 점]
+
+    self.object_memory = {}: 물체들의 좌표를 저장하는 금고(딕셔너리)입니다.
+
+    update_memory_callback: YOLO가 보내는 모든 물체 정보를 받아서 메모리를 갱신합니다. (단, 홈 위치에 있을 때만!)
+
+    execute_move:
+
+        이제 "타겟 찾아봐~" 하고 기다리는 게 아닙니다.
+
+        "내 메모리에 타겟(1번) 있나?" 하고 뒤져봅니다.
+
+        있으면 바로 갑니다. (이미 홈에서 스캔했으니까요)
+
+self.scan_base_pose 변수 추가: 홈에 도착했을 때의 **로봇 몸체 좌표(Base Pose)**를 딱 저장해둡니다.
+
+좌표 변환 시점: 나중에 2번, 3번으로 이동해서 몸이 딴 데 가 있어도, 계산할 때는 무조건 아까 저장한 scan_base_pose를 기준으로 물체 위치를 계산합니다.
+
+---------------------------------------------------------------
+
+ros2 run tf2_ros static_transform_publisher 0.03535 0.05778 -0.24377 -3.13383 0.00629 -0.00063 link6 camera_link
+
+--------------------------------------------------------
+
+tf tsdf
+	TSDF (Truncated Signed Distance Function)
+
