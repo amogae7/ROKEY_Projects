@@ -1,166 +1,91 @@
-# 🚗 Multi-AMR Parking Valet Automation System  
-### ROS2-based Multi-Robot Mission Orchestration Architecture
+﻿# 다중 AMR 주차대행 자동화 시스템 제어
 
----
+## 프로젝트 개요
+본 프로젝트는 ROS2 기반 다중 AMR(주로 TurtleBot4) 주차대행 자동화 시스템입니다.
+입차(주차 슬롯 할당 + 자율주행 정렬)와 출차(미션 생성/분배/실행)를 분리해 설계했습니다.
 
-## 📌 System Overview
+## 핵심 구성
+- 입차
+  - `parking_manage.py`: Supabase 기반 주차 슬롯 관리/할당
+  - `main_control.py`: Nav2 주행 + 라인 정렬 + 주차 완료 신호
+- 출차(이중/단일 시나리오)
+  - `mission_manager.py`: 출차 요청을 phase 기반 미션으로 변환
+  - `task_allocator.py`: robot1/robot5 미션 분배
+  - `mission_executor.py`: Nav2/Dock/Undock/정렬 실행
+  - `parking_msgs`: 커스텀 메시지 인터페이스
 
-본 프로젝트는 다중 AMR(TurtleBot4)을 활용한 주차대행(출차) 자동화 시스템이다.
-
-출차 요청이 들어오면 시스템은 다음의 계층 구조를 따라 동작한다:
-
-1. 출차 요청 수신  
-2. 슬롯 상태 분석  
-3. Phase 기반 미션 시퀀스 생성  
-4. 로봇별 미션 분배  
-5. Nav2 기반 자율 이동 및 Dock/Undock 수행  
-6. 상태 업데이트 및 DB 반영  
-
----
-
-## 📡 System Architecture
-
-```mermaid
-flowchart TD
-
-subgraph L0["Input Layer"]
-    USER["Operator / UI"]
-    EXIT["/parking/exit_type"]
-    DB["Supabase DB"]
-end
-
-subgraph L1["Mission Planning Layer"]
-    SLOT["parking_slot_manager"]
-    MM["mission_manager"]
-    TA["task_allocator"]
-end
-
-subgraph L2["Execution Layer"]
-    ME1["robot1/mission_executor"]
-    ME5["robot5/mission_executor"]
-end
-
-subgraph L3["Navigation Layer"]
-    NAV1["robot1 Nav2"]
-    NAV5["robot5 Nav2"]
-    DOCK1["robot1 Dock/Undock"]
-    DOCK5["robot5 Dock/Undock"]
-end
-
-USER --> EXIT
-EXIT --> MM
-SLOT --> MM
-MM --> TA
-TA --> ME1
-TA --> ME5
-ME1 --> NAV1
-ME5 --> NAV5
-ME1 --> DOCK1
-ME5 --> DOCK5
-TA <--> DB
+## 디렉터리 구조
+```text
+다중 AMR 주차대행 자동화 시스템 제어/
+|- 본프로젝트/
+|  |- 입차/코드/
+|  |  |- parking_manage.py
+|  |  '- main_control.py
+|  '- 출차/코드/이중단일주차/src/
+|     |- parking_msgs/
+|     |- parking_system/   # mission_manager, task_allocator
+|     '- parking_executor/ # mission_executor
+|- 미니프로젝트/
+'- 문서/ (BRD/SRD/SDD/아키텍처 문서)
 ```
 
----
+## 시스템 로직
+### 입차
+1. 차량 타입 입력(`/vehicle_type`)
+2. `parking_manage.py`가 DB 기반 가용 슬롯 탐색/할당
+3. `/parking_allocation`으로 목표 좌표 발행
+4. `main_control.py`가 Nav2 이동 후 비전 정렬
+5. `/parking_done` 발행 및 상태 갱신
 
-## 📦 Package Structure
+### 출차
+1. 출차 요청 수신
+2. `mission_manager.py`가 SINGLE/DOUBLE 시나리오별 MissionArray 생성
+3. `task_allocator.py`가 robot1/robot5에 미션 배포
+4. 각 `mission_executor.py`가 Nav2 + 도킹 + 라인정렬 실행
+5. `MissionStatus`로 진행 상태 피드백
 
-### 1️⃣ parking_msgs (Interface Layer)
+## 아키텍처
+```mermaid
+flowchart TD
+  UI[Operator/UI] --> VT[/vehicle_type/]
+  VT --> PSM[parking_manage.py]
+  PSM --> ALLOC[/parking_allocation/]
+  ALLOC --> ORCH[main_control.py]
+  ORCH --> DONE[/parking_done/]
 
-시스템 내부 통신을 위한 메시지 정의 패키지.
+  CMD[Exit Command] --> MM[mission_manager.py]
+  MM --> RAW[/raw_missions/]
+  RAW --> TA[task_allocator.py]
+  TA --> R1[/robot1/assigned_missions/]
+  TA --> R5[/robot5/assigned_missions/]
+  R1 --> EX1[robot1 mission_executor.py]
+  R5 --> EX5[robot5 mission_executor.py]
+  EX1 --> NAV1[Nav2 + Dock]
+  EX5 --> NAV5[Nav2 + Dock]
+  EX1 --> STAT[/mission_status/]
+  EX5 --> STAT
+  PSM <--> DB[(Supabase)]
+  TA <--> DB
+```
 
-주요 메시지:
+## 주요 토픽/인터페이스
+- `std_msgs/String`: `/vehicle_type`, `/parking_allocation`, 출차 명령
+- `parking_msgs/MissionArray`: `raw_missions`, `robotX/assigned_missions`
+- `parking_msgs/MissionStatus`: `robotX/mission_status`
+- `std_msgs/Bool`: `/parking_done`
 
-- `Mission` : 단일 로봇 행동 단위  
-- `MissionArray` : 여러 Mission을 포함한 시퀀스  
-- `MissionStatus` : 현재 미션 실행 상태  
-- `SlotStates` : 주차 슬롯 점유 상태  
+## 실행 환경(권장)
+- Ubuntu + ROS2 Humble
+- TurtleBot4 + Nav2
+- Python: `supabase`, `opencv`, `cv_bridge`
+- DB: Supabase `parking_locations`, `tasks` 테이블
 
-모듈 간 강결합을 방지하고 확장성을 확보하기 위한 인터페이스 계층이다.
+## 실행 순서(권장)
+1. Nav2/로봇 bringup
+2. 입차 스택(`parking_manage.py`, `main_control.py`) 실행
+3. 출차 스택(`mission_manager.py`, `task_allocator.py`, `mission_executor.py`) 실행
+4. UI 또는 task command로 입/출차 시나리오 검증
 
----
-
-### 2️⃣ parking_system (Orchestration Layer)
-
-시스템의 핵심 제어 로직을 담당한다.
-
-#### parking_slot_manager
-
-- 슬롯 상태를 관리
-- `slot_states` topic publish
-
-#### mission_manager
-
-- `/parking/exit_type` 입력을 받아 Phase 기반 미션 생성
-- SINGLE / DOUBLE 출차 시나리오 처리
-- `raw_missions (MissionArray)` publish
-
-#### task_allocator
-
-- `raw_missions`를 robot1 / robot5로 분배
-- 각 로봇 namespace로 `assigned_missions` publish
-- Supabase DB 상태 업데이트
-
----
-
-### 3️⃣ parking_executor (Execution Layer)
-
-각 로봇에 대해 mission_executor 노드를 실행한다.
-
-주요 기능:
-
-1. assigned_missions 수신  
-2. Mission Queue 구성  
-3. Nav2 NavigateToPose Action 호출  
-4. Dock / Undock 수행  
-5. MissionStatus publish  
-
----
-
-### 4️⃣ rokey_pjt (Optional Perception Layer)
-
-차량 인식 및 정밀 정렬 기능을 담당한다.
-
-- YOLO 기반 차량 타입 분류  
-- 카메라 기반 Line Alignment  
-- waypoint 도착 후 정밀 위치 보정  
-
----
-
-## 🔄 Data Flow
-
-| Topic | Type | Publisher | Subscriber | Purpose |
-|-------|------|----------|-----------|---------|
-| `/parking/exit_type` | String | UI | mission_manager | 출차 요청 |
-| `slot_states` | SlotStates | slot_manager | mission_manager | 슬롯 상태 |
-| `raw_missions` | MissionArray | mission_manager | task_allocator | 전체 미션 |
-| `robotX/assigned_missions` | MissionArray | task_allocator | mission_executor | 로봇별 미션 |
-| `mission_status` | MissionStatus | mission_executor | system | 실행 상태 |
-
----
-
-## 🚀 Execution Flow (Single Exit Example)
-
-1. 운영자가 출차 요청 전송  
-2. mission_manager가 슬롯 상태 확인  
-3. 출차 유형 분석  
-4. Phase 기반 MissionArray 생성  
-5. task_allocator가 로봇별 분배  
-6. mission_executor가 Nav2 Action 호출  
-7. Dock/Undock 수행  
-8. DB 상태 갱신  
-
----
-
-## 🧠 Design Characteristics
-
-- Mission / Allocation / Execution 계층 분리 설계  
-- Nav2 Action 기반 이동 제어  
-- Multi-namespace 구조 (robot1, robot5)  
-- 외부 DB 연동을 통한 상태 관리  
-- 확장 가능한 다중 로봇 구조  
-
----
-
-## 📖 Architectural Summary
-
-A layered multi-robot orchestration architecture separating mission planning, allocation, and execution using ROS2 messaging and Nav2 actions.
+## 참고
+- 문서 폴더에 BRD/SRD/SDD 및 시스템 다이어그램 PDF가 함께 포함되어 있습니다.
+- 현재 코드에는 실험/백업 파일이 다수 포함되어 있어, 운영 시 엔트리 파일 고정이 필요합니다.
