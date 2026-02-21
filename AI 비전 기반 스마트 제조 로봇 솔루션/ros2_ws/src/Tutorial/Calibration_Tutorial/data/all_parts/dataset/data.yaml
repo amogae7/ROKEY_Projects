@@ -1,7 +1,0 @@
-path: .
-train: train/images
-val: valid/images
-test: test/images
-
-nc: 6
-names: ['part_1_good','part_1_bad', 'part_2_good', 'part_2_bad', 'part_3_good', 'part_3_bad']
