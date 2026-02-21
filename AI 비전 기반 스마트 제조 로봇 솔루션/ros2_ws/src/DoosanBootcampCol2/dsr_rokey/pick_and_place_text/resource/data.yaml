@@ -1,6 +1,0 @@
-train: ../train/images
-val: ../valid/images
-test: ../test/images
-
-nc: 5
-names: ['cutting plier', 'hammer', 'screw driver', 'spanner', 'wrench']
