@@ -1,166 +1,47 @@
-# 🚗 Multi-AMR Parking Valet Automation System  
-### ROS2-based Multi-Robot Mission Orchestration Architecture
+﻿# ROKEY Projects Overview
 
----
+이 저장소는 로봇/AI 융합 프로젝트 4개를 모아둔 통합 포트폴리오입니다.
+각 폴더는 독립 프로젝트이며, 세부 실행법과 아키텍처는 폴더별 `README.md`에 정리되어 있습니다.
 
-## 📌 System Overview
+## 프로젝트 목록
 
-본 프로젝트는 다중 AMR(TurtleBot4)을 활용한 주차대행(출차) 자동화 시스템이다.
+### 1. 다중 AMR 주차대행 자동화 시스템 제어
+- 요약: ROS2 기반으로 다중 AMR(TurtleBot 계열)의 입차/출차 미션을 자동화하는 시스템
+- 핵심: 슬롯 할당, 미션 생성/분배, Nav2 주행, Dock/Undock, 상태 동기화
+- 주요 기술: ROS2, Nav2, Supabase, OpenCV
+- 경로: `다중 AMR 주차대행 자동화 시스템 제어/README.md`
 
-출차 요청이 들어오면 시스템은 다음의 계층 구조를 따라 동작한다:
+### 2. AI 비전 기반 스마트 제조 로봇 솔루션
+- 요약: YOLO 비전 인식 + 음성 명령 해석 + 협동로봇 제어를 통합한 스마트 제조 셀
+- 핵심: 객체 인식/좌표화, LLM 명령 파싱, 픽앤플레이스/폐기 자동화
+- 주요 기술: ROS2, Ultralytics YOLO, OpenCV, Speech Recognition, LangChain/OpenAI, Doosan Robot
+- 경로: `AI 비전 기반 스마트 제조 로봇 솔루션/README.md`
 
-1. 출차 요청 수신  
-2. 슬롯 상태 분석  
-3. Phase 기반 미션 시퀀스 생성  
-4. 로봇별 미션 분배  
-5. Nav2 기반 자율 이동 및 Dock/Undock 수행  
-6. 상태 업데이트 및 DB 반영  
+### 3. 디지털 트윈 기반 수산양식장 청소로봇
+- 요약: Isaac Sim에서 수조 환경과 UR10을 이용해 청소 동작을 검증하는 디지털 트윈 프로젝트
+- 핵심: 월드/에셋 구성, IK 경로 계획, 스캔/추적 청소, 물리 피드백
+- 주요 기술: NVIDIA Isaac Sim, USD, Python, IK
+- 경로: `디지털 트윈 기반 수산양식장 청소로봇/README.md`
 
----
+### 4. 협동로봇 기반 핸드드립 자동화 로봇
+- 요약: 웹 주문 UI와 협동로봇을 연동해 핸드드립 제조를 자동화한 시스템
+- 핵심: Firebase 기반 주문/상태 동기화, 공정 시퀀스 실행, STOP/RECOVER 제어
+- 주요 기술: ROS2, Doosan Robot, Firebase Realtime DB, HTML/CSS/JS
+- 경로: `협동로봇 기반 핸드드립 자동화 로봇/README.md`
 
-## 📡 System Architecture
-
-```mermaid
-flowchart TD
-
-subgraph L0["Input Layer"]
-    USER["Operator / UI"]
-    EXIT["/parking/exit_type"]
-    DB["Supabase DB"]
-end
-
-subgraph L1["Mission Planning Layer"]
-    SLOT["parking_slot_manager"]
-    MM["mission_manager"]
-    TA["task_allocator"]
-end
-
-subgraph L2["Execution Layer"]
-    ME1["robot1/mission_executor"]
-    ME5["robot5/mission_executor"]
-end
-
-subgraph L3["Navigation Layer"]
-    NAV1["robot1 Nav2"]
-    NAV5["robot5 Nav2"]
-    DOCK1["robot1 Dock/Undock"]
-    DOCK5["robot5 Dock/Undock"]
-end
-
-USER --> EXIT
-EXIT --> MM
-SLOT --> MM
-MM --> TA
-TA --> ME1
-TA --> ME5
-ME1 --> NAV1
-ME5 --> NAV5
-ME1 --> DOCK1
-ME5 --> DOCK5
-TA <--> DB
+## 저장소 구조
+```text
+ROKEY_Projects/
+|- AI 비전 기반 스마트 제조 로봇 솔루션/
+|- 다중 AMR 주차대행 자동화 시스템 제어/
+|- 디지털 트윈 기반 수산양식장 청소로봇/
+'- 협동로봇 기반 핸드드립 자동화 로봇/
 ```
 
----
+## 빠른 시작
+1. 관심 프로젝트 폴더로 이동
+2. 해당 폴더의 `README.md` 확인
+3. 환경 의존성(ROS2/Isaac Sim/Firebase 등) 설치 후 실행
 
-## 📦 Package Structure
-
-### 1️⃣ parking_msgs (Interface Layer)
-
-시스템 내부 통신을 위한 메시지 정의 패키지.
-
-주요 메시지:
-
-- `Mission` : 단일 로봇 행동 단위  
-- `MissionArray` : 여러 Mission을 포함한 시퀀스  
-- `MissionStatus` : 현재 미션 실행 상태  
-- `SlotStates` : 주차 슬롯 점유 상태  
-
-모듈 간 강결합을 방지하고 확장성을 확보하기 위한 인터페이스 계층이다.
-
----
-
-### 2️⃣ parking_system (Orchestration Layer)
-
-시스템의 핵심 제어 로직을 담당한다.
-
-#### parking_slot_manager
-
-- 슬롯 상태를 관리
-- `slot_states` topic publish
-
-#### mission_manager
-
-- `/parking/exit_type` 입력을 받아 Phase 기반 미션 생성
-- SINGLE / DOUBLE 출차 시나리오 처리
-- `raw_missions (MissionArray)` publish
-
-#### task_allocator
-
-- `raw_missions`를 robot1 / robot5로 분배
-- 각 로봇 namespace로 `assigned_missions` publish
-- Supabase DB 상태 업데이트
-
----
-
-### 3️⃣ parking_executor (Execution Layer)
-
-각 로봇에 대해 mission_executor 노드를 실행한다.
-
-주요 기능:
-
-1. assigned_missions 수신  
-2. Mission Queue 구성  
-3. Nav2 NavigateToPose Action 호출  
-4. Dock / Undock 수행  
-5. MissionStatus publish  
-
----
-
-### 4️⃣ rokey_pjt (Optional Perception Layer)
-
-차량 인식 및 정밀 정렬 기능을 담당한다.
-
-- YOLO 기반 차량 타입 분류  
-- 카메라 기반 Line Alignment  
-- waypoint 도착 후 정밀 위치 보정  
-
----
-
-## 🔄 Data Flow
-
-| Topic | Type | Publisher | Subscriber | Purpose |
-|-------|------|----------|-----------|---------|
-| `/parking/exit_type` | String | UI | mission_manager | 출차 요청 |
-| `slot_states` | SlotStates | slot_manager | mission_manager | 슬롯 상태 |
-| `raw_missions` | MissionArray | mission_manager | task_allocator | 전체 미션 |
-| `robotX/assigned_missions` | MissionArray | task_allocator | mission_executor | 로봇별 미션 |
-| `mission_status` | MissionStatus | mission_executor | system | 실행 상태 |
-
----
-
-## 🚀 Execution Flow (Single Exit Example)
-
-1. 운영자가 출차 요청 전송  
-2. mission_manager가 슬롯 상태 확인  
-3. 출차 유형 분석  
-4. Phase 기반 MissionArray 생성  
-5. task_allocator가 로봇별 분배  
-6. mission_executor가 Nav2 Action 호출  
-7. Dock/Undock 수행  
-8. DB 상태 갱신  
-
----
-
-## 🧠 Design Characteristics
-
-- Mission / Allocation / Execution 계층 분리 설계  
-- Nav2 Action 기반 이동 제어  
-- Multi-namespace 구조 (robot1, robot5)  
-- 외부 DB 연동을 통한 상태 관리  
-- 확장 가능한 다중 로봇 구조  
-
----
-
-## 📖 Architectural Summary
-
-A layered multi-robot orchestration architecture separating mission planning, allocation, and execution using ROS2 messaging and Nav2 actions.
+## 참고
+- 프로젝트별 코드 품질/실험 버전 파일이 혼재할 수 있으므로, 각 README의 엔트리 파일 기준으로 실행하는 것을 권장합니다.
