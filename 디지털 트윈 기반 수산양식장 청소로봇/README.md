@@ -37,7 +37,7 @@ flowchart LR
   WORLD --> TANK[Fish Tank Grid]
   WORLD --> GANTRY[Gantry + Rail + Carriage]
   WORLD --> ASSET[UR10 USD Assets]
-  ASSET --> ROBOT[UR10 Robot(s)]
+  ASSET --> ROBOT[UR10 Robots]
   ROBOT --> IK[IK Solver + Trajectory Planner]
   IK --> CLEAN[Raster Scan / Follow Motion]
   CLEAN --> CONTACT[Contact Sensor / Physics]

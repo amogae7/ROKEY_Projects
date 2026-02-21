@@ -46,11 +46,11 @@ AI 비전 기반 스마트 제조 로봇 솔루션/
 
 ## 아키텍처
 ```mermaid
-flowchart LR
+flowchart TD
   CAM[RGB-D Camera] --> YOLO[yolo_node_fin.py]
-  YOLO --> DETECT[/yolo_all_detect JSON/]
   MIC[Mic] --> STT[Speech Recognition]
   STT --> LLM[LLM Command Parser]
+  YOLO --> DETECT[/yolo_all_detect JSON/]
   LLM --> MANAGER[smart_manager_integrated_2.py]
   DETECT --> MANAGER
   MANAGER --> CMD[/dispose/show/stop/resume topics/]
