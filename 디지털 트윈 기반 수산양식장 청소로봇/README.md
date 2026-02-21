@@ -33,15 +33,37 @@ UR10 로봇(단일/다중)과 갠트리 구조를 구성하고, IK 기반 스캔
 ## 아키텍처
 ```mermaid
 flowchart TD
-  SIM[Isaac Sim App] --> WORLD[World Builder]
-  WORLD --> TANK[Fish Tank Grid]
-  WORLD --> GANTRY[Gantry + Rail + Carriage]
-  WORLD --> ASSET[UR10 USD Assets]
-  ASSET --> ROBOT[UR10 Robots]
-  ROBOT --> IK[IK Solver + Trajectory Planner]
-  IK --> CLEAN[Raster Scan / Follow Motion]
-  CLEAN --> CONTACT[Contact Sensor / Physics]
-  CONTACT --> STATE[Cleaning State Update]
+  subgraph L0["Simulation Platform Layer"]
+    SIM[Isaac Sim App]
+    WORLD[World Builder]
+  end
+
+  subgraph L1["Digital Twin Asset Layer"]
+    TANK[Fish Tank Grid]
+    GANTRY[Gantry and Rail]
+    ASSET[UR10 USD Assets]
+  end
+
+  subgraph L2["Motion Planning and Control Layer"]
+    ROBOT[UR10 Robots]
+    IK[IK Solver and Trajectory Planner]
+    CLEAN[Raster Scan and Follow Motion]
+  end
+
+  subgraph L3["Physics Feedback Layer"]
+    CONTACT[Contact Sensor and Physics]
+    STATE[Cleaning State Update]
+  end
+
+  SIM --> WORLD
+  WORLD --> TANK
+  WORLD --> GANTRY
+  WORLD --> ASSET
+  ASSET --> ROBOT
+  ROBOT --> IK
+  IK --> CLEAN
+  CLEAN --> CONTACT
+  CONTACT --> STATE
 ```
 
 ## 실행 환경

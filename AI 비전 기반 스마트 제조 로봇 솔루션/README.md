@@ -47,17 +47,40 @@ AI 비전 기반 스마트 제조 로봇 솔루션/
 ## 아키텍처
 ```mermaid
 flowchart TD
-  CAM[RGB-D Camera] --> YOLO[yolo_node_fin.py]
-  MIC[Mic] --> STT[Speech Recognition]
-  STT --> LLM[LLM Command Parser]
-  YOLO --> DETECT[/yolo_all_detect JSON/]
-  LLM --> MANAGER[smart_manager_integrated_2.py]
+  subgraph L0["Input Layer"]
+    CAM[RGB-D Camera]
+    MIC[Mic]
+  end
+
+  subgraph L1["Perception and Understanding Layer"]
+    YOLO[yolo_node_fin.py]
+    STT[Speech Recognition]
+    LLM[LLM Command Parser]
+    DETECT[/yolo_all_detect JSON/]
+  end
+
+  subgraph L2["Orchestration Layer"]
+    MANAGER[smart_manager_integrated_2.py]
+    CMD[/dispose/show/stop/resume topics/]
+  end
+
+  subgraph L3["Execution Layer"]
+    ROBOT[robot_control_final.py]
+    ARM[Doosan M0609 + RG2]
+    STATUS[/robot_status/]
+  end
+
+  CAM --> YOLO
+  MIC --> STT
+  STT --> LLM
+  YOLO --> DETECT
+  LLM --> MANAGER
   DETECT --> MANAGER
-  MANAGER --> CMD[/dispose/show/stop/resume topics/]
-  DETECT --> ROBOT[robot_control_final.py]
+  MANAGER --> CMD
+  DETECT --> ROBOT
   CMD --> ROBOT
-  ROBOT --> ARM[Doosan M0609 + RG2]
-  ROBOT --> STATUS[/robot_status/]
+  ROBOT --> ARM
+  ROBOT --> STATUS
   STATUS --> MANAGER
 ```
 

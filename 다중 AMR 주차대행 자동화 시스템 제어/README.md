@@ -47,24 +47,47 @@
 ## 아키텍처
 ```mermaid
 flowchart TD
-  UI[Operator/UI] --> VT[/vehicle_type/]
-  VT --> PSM[parking_manage.py]
-  PSM --> ALLOC[/parking_allocation/]
-  ALLOC --> ORCH[main_control.py]
-  ORCH --> DONE[/parking_done/]
+  subgraph L0["Input Layer"]
+    UI[Operator or UI]
+    VT[/vehicle_type/]
+    CMD[Exit Command]
+    DB[(Supabase)]
+  end
 
-  CMD[Exit Command] --> MM[mission_manager.py]
-  MM --> RAW[/raw_missions/]
-  RAW --> TA[task_allocator.py]
-  TA --> R1[/robot1/assigned_missions/]
-  TA --> R5[/robot5/assigned_missions/]
-  R1 --> EX1[robot1 mission_executor.py]
-  R5 --> EX5[robot5 mission_executor.py]
-  EX1 --> NAV1[Nav2 + Dock]
-  EX5 --> NAV5[Nav2 + Dock]
-  EX1 --> STAT[/mission_status/]
+  subgraph L1["Planning Layer"]
+    PSM[parking_manage.py]
+    MM[mission_manager.py]
+    TA[task_allocator.py]
+    RAW[/raw_missions/]
+  end
+
+  subgraph L2["Execution Layer"]
+    ORCH[main_control.py]
+    EX1[robot1 mission_executor.py]
+    EX5[robot5 mission_executor.py]
+  end
+
+  subgraph L3["Navigation Layer"]
+    NAV1[robot1 Nav2 plus Dock]
+    NAV5[robot5 Nav2 plus Dock]
+    DONE[/parking_done/]
+    STAT[/mission_status/]
+  end
+
+  UI --> VT
+  VT --> PSM
+  PSM --> ORCH
+  ORCH --> DONE
+  CMD --> MM
+  MM --> RAW
+  RAW --> TA
+  TA --> EX1
+  TA --> EX5
+  EX1 --> NAV1
+  EX5 --> NAV5
+  EX1 --> STAT
   EX5 --> STAT
-  PSM <--> DB[(Supabase)]
+  PSM <--> DB
   TA <--> DB
 ```
 

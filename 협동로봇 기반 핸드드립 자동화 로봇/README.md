@@ -33,10 +33,26 @@ Doosan M0609 협동로봇과 Firebase 기반 UI를 연결해 핸드드립 제조
 
 ## 아키텍처
 ```mermaid
-flowchart LR
-  UI[Web UI] --> FB[(Firebase Realtime DB)]
-  FB --> LISTENER[real_god_listener.py]
-  LISTENER --> ROBOT[Doosan M0609 + Gripper]
+flowchart TD
+  subgraph L0["User Interface Layer"]
+    UI[Web UI]
+  end
+
+  subgraph L1["Cloud Sync Layer"]
+    FB[(Firebase Realtime DB)]
+  end
+
+  subgraph L2["Robot Orchestration Layer"]
+    LISTENER[real_god_listener.py]
+  end
+
+  subgraph L3["Physical Execution Layer"]
+    ROBOT[Doosan M0609 plus Gripper]
+  end
+
+  UI --> FB
+  FB --> LISTENER
+  LISTENER --> ROBOT
   ROBOT --> LISTENER
   LISTENER --> FB
   FB --> UI
