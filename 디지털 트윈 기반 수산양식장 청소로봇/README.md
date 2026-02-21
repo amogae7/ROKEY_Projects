@@ -32,7 +32,7 @@ UR10 로봇(단일/다중)과 갠트리 구조를 구성하고, IK 기반 스캔
 
 ## 아키텍처
 ```mermaid
-flowchart LR
+flowchart TD
   SIM[Isaac Sim App] --> WORLD[World Builder]
   WORLD --> TANK[Fish Tank Grid]
   WORLD --> GANTRY[Gantry + Rail + Carriage]
